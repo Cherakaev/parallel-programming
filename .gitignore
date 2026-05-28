@@ -69,8 +69,8 @@ Testing/
 .cache/
 
 # Ignore huge matrix files
-Lab_1/data/
-Lab_2/data/
-Lab_3/data/
-Lab_4/data/
-Lab_5/data/
+Lab_1/data/*.txt
+Lab_2/data/*.txt
+Lab_3/data/*.txt
+Lab_4/data/*.txt
+Lab_5/data/*.txt
