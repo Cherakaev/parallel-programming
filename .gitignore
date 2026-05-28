@@ -69,8 +69,7 @@ Testing/
 .cache/
 
 # Ignore huge matrix files
-Lab_1/data/*.txt
-Lab_2/data/*.txt
-Lab_3/data/*.txt
-Lab_4/data/*.txt
-Lab_5/data/*.txt
+data/*.txt
+
+# Ignore .exe
+matrix_mult.exe
