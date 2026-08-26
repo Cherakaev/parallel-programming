@@ -1,5 +1,13 @@
 @echo off
 chcp 65001 > nul
+setlocal enabledelayedexpansion
+
+:: ==========================================
+:: НАСТРОЙКИ
+:: ==========================================
+set MATRIX_SIZE=200
+:: ==========================================
+
 echo ========================================
 echo STEP 1: Compiling C++ code...
 echo ========================================
@@ -12,9 +20,9 @@ if %errorlevel% neq 0 (
 )
 
 echo ========================================
-echo STEP 2: Generating test matrices (N=400)...
+echo STEP 2: Generating test matrices (N=%MATRIX_SIZE%)...
 echo ========================================
-python generate_matrices.py 400
+python generate_matrices.py %MATRIX_SIZE%
 
 echo ========================================
 echo STEP 3: Running matrix multiplication...
