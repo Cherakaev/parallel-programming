@@ -1,8 +1,10 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <chrono>
+#include <string>
 #include <iomanip>
+#include <chrono>
+#include <omp.h>
 
 using namespace std;
 
@@ -16,11 +18,23 @@ bool readMatrix(const string& filename, vector<double>& matrix, int& n) {
     return true;
 }
 
-int main() {
+int main(int argc, char* argv[]) {
     string fileA = "data/matrix_A.txt";
     string fileB = "data/matrix_B.txt";
     int n;
     vector<double> A, B, C;
+
+    int num_threads = 4;
+    if (argc > 1) {
+        num_threads = stoi(argv[1]);
+    }
+    
+    int max_procs = omp_get_num_procs();
+    if (num_threads > max_procs) {
+        num_threads = max_procs;
+    }
+
+    omp_set_num_threads(num_threads);
 
     if (!readMatrix(fileA, A, n) || !readMatrix(fileB, B, n)) {
         cerr << "Error: Could not read matrices!" << endl;
@@ -30,7 +44,7 @@ int main() {
     C.assign(n * n, 0.0);
     auto start = chrono::high_resolution_clock::now();
 
-
+    #pragma omp parallel for
     for (int i = 0; i < n; ++i) {
         for (int k = 0; k < n; ++k) {
             double a_ik = A[i * n + k];
@@ -46,14 +60,12 @@ int main() {
     double gflops = (2.0 * static_cast<double>(n) * n * n) / 1e9;
     double perf = gflops / duration.count();
 
-
-    cout << "N: " << n << " | Time: " << duration.count() << "s | Perf: " << perf << " GFLOP/s" << endl;
-
+    cout << "N: " << n << " | Threads: " << num_threads 
+         << " | Time: " << duration.count() << "s | Perf: " << perf << " GFLOP/s" << endl;
 
     ofstream csv("experiment_results.csv", ios::app);
-    csv << n << "," << duration.count() << "," << perf << "\n";
+    csv << n << "," << num_threads << "," << duration.count() << "," << perf << "\n";
     csv.close();
-
 
     ofstream resFile("data/matrix_C.txt");
     resFile << n << "\n";

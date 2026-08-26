@@ -5,13 +5,14 @@ setlocal enabledelayedexpansion
 :: ==========================================
 :: НАСТРОЙКИ
 :: ==========================================
-set MATRIX_SIZE=200
+set MATRIX_SIZE=400
+set THREADS=4
 :: ==========================================
 
 echo ========================================
-echo STEP 1: Compiling C++ code...
+echo STEP 1: Compiling C++ code with OpenMP...
 echo ========================================
-g++ matrix_mult.cpp -o matrix_mult.exe -O2
+g++ matrix_mult.cpp -o matrix_mult.exe -O2 -fopenmp
 
 if %errorlevel% neq 0 (
     echo [ERROR] Compilation failed!
@@ -25,9 +26,9 @@ echo ========================================
 python generate_matrices.py %MATRIX_SIZE%
 
 echo ========================================
-echo STEP 3: Running matrix multiplication...
+echo STEP 3: Running matrix multiplication on %THREADS% threads...
 echo ========================================
-matrix_mult.exe
+matrix_mult.exe %THREADS%
 
 echo ========================================
 echo STEP 4: Verifying results...
