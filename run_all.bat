@@ -2,14 +2,13 @@
 chcp 65001 > nul
 setlocal enabledelayedexpansion
 
-:: ==========================================
-:: НАСТРОЙКИ
-:: ==========================================
 set EXPERIMENT_SIZES=200 400 800 1200 1600 2000
-:: ==========================================
+set PROCESSES_LIST=1 2 4 8 12
 
-echo [1/4] Compiling...
-g++ matrix_mult.cpp -o matrix_mult.exe -O2
+echo ========================================
+echo [1/4] Compiling C++ code with MPI...
+echo ========================================
+g++ matrix_mult.cpp -o matrix_mult.exe -O2 -I"%MSMPI_INC%." -L"%MSMPI_LIB64%." -lmsmpi
 
 if %errorlevel% neq 0 (
     echo [ERROR] Compilation failed!
@@ -17,26 +16,33 @@ if %errorlevel% neq 0 (
     exit /b
 )
 
+echo ========================================
 echo [2/4] Cleaning old data...
+echo ========================================
 if exist experiment_results.csv del experiment_results.csv
 
-echo [3/4] Running experiments (%EXPERIMENT_SIZES%)...
+echo ========================================
+echo [3/4] Running experiments...
+echo ========================================
 for %%N in (%EXPERIMENT_SIZES%) do (
     echo.
-    echo   --- Processing N=%%N ---
-    
-    :: 1. Генерация
+    echo ----------------------------------------
+    echo   --- Generating Matrices N=%%N ---
+    echo ----------------------------------------
     python generate_matrices.py %%N > nul
     
-    :: 2. Вычисление C++
-    matrix_mult.exe
-    
-    :: 3. Проверка
-    python verify.py
+    for %%T in (%PROCESSES_LIST%) do (
+        echo   - Running N=%%N on %%T MPI processes...
+        mpiexec -n %%T matrix_mult.exe
+        
+        python verify.py
+    )
 )
 
 echo.
+echo ========================================
 echo [4/4] Generating plots...
+echo ========================================
 python plot_results.py
 
 echo.
