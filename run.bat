@@ -2,35 +2,30 @@
 chcp 65001 > nul
 setlocal enabledelayedexpansion
 
-:: ==========================================
-:: НАСТРОЙКИ
-:: ==========================================
-set MATRIX_SIZE=200
-:: ==========================================
+set MATRIX_SIZE=800
+set BLOCK_SIZE=16
 
 echo ========================================
-echo STEP 1: Compiling C++ code...
+echo [1/4] Compiling CUDA code...
 echo ========================================
-g++ matrix_mult.cpp -o matrix_mult.exe -O2
+nvcc matrix_mult.cu -o matrix_mult.exe -O2
 
 if %errorlevel% neq 0 (
-    echo [ERROR] Compilation failed!
-    pause
     exit /b
 )
 
 echo ========================================
-echo STEP 2: Generating test matrices (N=%MATRIX_SIZE%)...
+echo [2/4] Generating test matrices N=%MATRIX_SIZE%
 echo ========================================
-python generate_matrices.py %MATRIX_SIZE%
+python generate_matrices.py %MATRIX_SIZE% > nul
 
 echo ========================================
-echo STEP 3: Running matrix multiplication...
+echo [3/4] Running CUDA matrix multiplication...
 echo ========================================
-matrix_mult.exe
+matrix_mult.exe %BLOCK_SIZE%
 
 echo ========================================
-echo STEP 4: Verifying results...
+echo [4/4] Verifying results...
 echo ========================================
 python verify.py
 
