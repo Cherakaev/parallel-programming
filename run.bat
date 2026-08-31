@@ -2,6 +2,8 @@
 chcp 65001 > nul
 setlocal enabledelayedexpansion
 
+call "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat" > nul 2>&1
+
 set MATRIX_SIZE=800
 set BLOCK_SIZE=16
 
@@ -11,6 +13,8 @@ echo ========================================
 nvcc matrix_mult.cu -o matrix_mult.exe -O2
 
 if %errorlevel% neq 0 (
+    echo [ERROR] Compilation failed!
+    pause
     exit /b
 )
 
