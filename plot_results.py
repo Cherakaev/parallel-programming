@@ -19,8 +19,6 @@ def plot():
 
     df.columns = ["N", "Threads", "Time", "Perf"]
     
-    # Расчет потребляемой памяти для MPI (в Мегабайтах)
-    # Формула: (Threads + 2) * N^2 элементов типа double (по 8 байт)
     df["Memory_MB"] = (df["Threads"] + 2) * (df["N"] ** 2) * 8 / (1024 * 1024)
     
     # Теперь сетка 3x2 для новых графиков
@@ -29,7 +27,6 @@ def plot():
 
     threads = sorted(df["Threads"].unique())
 
-    # 1. Время выполнения
     for t in threads:
         dft = df[df["Threads"] == t].sort_values("N")
         axs[0, 0].plot(dft["N"], dft["Time"], marker='o', linewidth=2, label=f"{t} procs")
@@ -39,7 +36,6 @@ def plot():
     axs[0, 0].legend()
     axs[0, 0].grid(True, linestyle='--', alpha=0.7)
 
-    # 2. Производительность
     for t in threads:
         dft = df[df["Threads"] == t].sort_values("N")
         axs[0, 1].plot(dft["N"], dft["Perf"], marker='s', linewidth=2, label=f"{t} procs")
@@ -56,7 +52,6 @@ def plot():
         t1_time = df_max[df_max["Threads"] == 1]["Time"].values[0]
         df_max["Speedup"] = t1_time / df_max["Time"]
         
-        # 3. Ускорение
         axs[1, 0].plot(df_max["Threads"], df_max["Speedup"], 'o-', color='blue', linewidth=2, label='Actual Speedup')
         axs[1, 0].plot(df_max["Threads"], df_max["Threads"], '--', color='red', alpha=0.6, label='Ideal Speedup')
         axs[1, 0].set_title(f"Speedup vs Processes (N={max_n})", fontsize=14, fontweight='bold')
@@ -68,7 +63,6 @@ def plot():
 
         df_max["Efficiency"] = df_max["Speedup"] / df_max["Threads"]
         
-        # 4. Эффективность
         axs[1, 1].plot(df_max["Threads"], df_max["Efficiency"], 'd-', color='green', linewidth=2, label='Efficiency')
         axs[1, 1].axhline(y=1.0, color='red', linestyle='--', alpha=0.6, label='Ideal Efficiency')
         axs[1, 1].set_title(f"Efficiency vs Processes (N={max_n})", fontsize=14, fontweight='bold')
@@ -79,7 +73,6 @@ def plot():
         axs[1, 1].legend()
         axs[1, 1].grid(True, linestyle='--', alpha=0.7)
 
-        # 5. Потребление памяти от процессов
         axs[2, 0].bar(df_max["Threads"].astype(str), df_max["Memory_MB"], color='purple', alpha=0.7)
         for i, val in enumerate(df_max["Memory_MB"]):
             axs[2, 0].text(i, val + 2, f"{val:.0f}", ha='center', fontweight='bold')
@@ -88,7 +81,6 @@ def plot():
         axs[2, 0].set_ylabel("Total Memory (MB)")
         axs[2, 0].grid(axis='y', linestyle='--', alpha=0.7)
 
-    # 6. Потребление памяти от размера матрицы
     for t in threads:
         dft = df[df["Threads"] == t].sort_values("N")
         axs[2, 1].plot(dft["N"], dft["Memory_MB"], marker='^', linewidth=2, label=f"{t} procs")
