@@ -1,0 +1,19 @@
+#!/bin/bash
+#SBATCH --job-name=matMulMPI
+#SBATCH --time=00:15:00
+#SBATCH --ntasks-per-node=12
+#SBATCH --partition batch
+
+module load intel/mpi4
+
+rm -f experiment_results.csv
+
+for N in 200 400 800 1200 1600 2000; do
+    python3 generate_matrices.py $N
+    
+    for T in 1 2 4 8 12; do
+        mpirun -r ssh -np $T ./matrix_mult
+        
+        python3 verify.py
+    done
+done
